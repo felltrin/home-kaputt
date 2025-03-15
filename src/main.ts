@@ -14,32 +14,96 @@
 
 import r from "raylib";
 
-const boxColor: r.Color = r.BROWN;
-const boxPosition: r.Vector2 = { x: 50, y: 50 };
+// scene constants
+class Projectile {
+  radius: number;
+  speed: number;
+  pos: r.Vector2;
+
+  constructor(pos: r.Vector2) {
+    this.radius = 4;
+    this.speed = -8;
+    this.pos = pos;
+  }
+
+  draw() {
+    r.DrawCircle(this.pos.x, this.pos.y, this.radius, r.GREEN);
+  }
+}
+
+class House {
+  position: r.Vector3;
+  hp: number;
+  color: r.Color;
+  projectiles: Array<Projectile>;
+  ready: boolean = true;
+  projectile_time: number = 0;
+  projectile_cooldown: number = 600;
+
+  constructor(newX: number) {
+    this.position = { x: newX, y: 550, z: 150 };
+    this.hp = 100;
+    this.color = { r: 0, g: 0, b: 128, a: 255 };
+    this.projectiles = new Array();
+  }
+
+  fireProjectiles() {
+    const pos: r.Vector2 = { x: this.position.x, y: this.position.y };
+    this.projectiles.push(new Projectile(pos));
+  }
+
+  draw() {
+    r.DrawRectangle(
+      this.position.x,
+      this.position.y,
+      this.position.z,
+      this.position.z,
+      this.color
+    );
+    r.DrawTriangle(
+      { x: this.position.x + 75, y: this.position.y - 125 },
+      { x: this.position.x - 50, y: this.position.y },
+      { x: this.position.x + this.position.z + 50, y: this.position.y },
+      this.color
+    );
+  }
+}
+
+const houseOne: House = new House(200);
+const houseTwo: House = new House(900);
+const ground: r.Vector3 = { x: 0, y: 700, z: 1300 };
 
 const screenWidth = 1280;
 const screenHeight = 720;
 
-r.InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+r.InitWindow(screenWidth, screenHeight, "home feud");
 r.SetTargetFPS(60);
 
 while (!r.WindowShouldClose()) {
-  if (r.IsKeyDown(r.KEY_RIGHT)) {
-    boxPosition.x += 10;
+  if (r.IsKeyPressed(r.KEY_SPACE)) {
+    houseOne.fireProjectiles();
   }
-  if (r.IsKeyDown(r.KEY_LEFT)) {
-    boxPosition.x -= 10;
-  }
-  if (r.IsKeyDown(r.KEY_DOWN)) {
-    boxPosition.y += 10;
-  }
-  if (r.IsKeyDown(r.KEY_UP)) {
-    boxPosition.y -= 10;
-  }
-
+  // if (r.IsKeyDown(r.KEY_LEFT)) {
+  //   boxPosition.x -= 10;
+  // }
+  // if (r.IsKeyDown(r.KEY_DOWN)) {
+  //   boxPosition.y += 10;
+  // }
+  // if (r.IsKeyDown(r.KEY_UP)) {
+  //   boxPosition.y -= 10;
+  // }
   r.BeginDrawing();
   r.ClearBackground(r.SKYBLUE);
-  r.DrawRectangle(boxPosition.x, boxPosition.y, 200, 200, boxColor);
+
+  for (let projectile of houseOne.projectiles) {
+    projectile.draw();
+  }
+
+  // scene drawing
+  houseOne.draw();
+  houseTwo.draw();
+  r.DrawRectangle(ground.x, ground.y, ground.z, ground.z, r.BROWN);
+
   r.EndDrawing();
 }
 r.CloseWindow();
