@@ -47,12 +47,27 @@ class House {
   color: r.Color;
   projectiles: Array<Projectile>;
   ready: boolean = true;
+  hpOutlineRect: r.Rectangle;
+  hpOutlineRoundness: number;
+  hpOutlineSegments: number;
+  hpOutlineLineThick: number;
+  // hpOutlineColor: r.Color;
 
   constructor(newX: number) {
     this.position = { x: newX, y: 550, z: 150 };
     this.hp = 100;
     this.color = { r: 0, g: 0, b: 128, a: 255 };
     this.projectiles = new Array();
+    this.hpOutlineRect = {
+      x: this.position.x - 25,
+      y: this.position.y - 200,
+      width: 200,
+      height: 20,
+    };
+    this.hpOutlineRoundness = 5;
+    this.hpOutlineSegments = 10;
+    this.hpOutlineLineThick = 4;
+    // this.hpOutlineColor = r.BLACK;
   }
 
   fireProjectiles() {
@@ -73,6 +88,7 @@ class House {
   }
 
   draw() {
+    // house body
     r.DrawRectangle(
       this.position.x,
       this.position.y,
@@ -80,11 +96,22 @@ class House {
       this.position.z,
       this.color
     );
+
+    // house roof
     r.DrawTriangle(
       { x: this.position.x + 75, y: this.position.y - 125 },
       { x: this.position.x - 50, y: this.position.y },
       { x: this.position.x + this.position.z + 50, y: this.position.y },
       this.color
+    );
+
+    // hp bar outline
+    r.DrawRectangleRoundedLines(
+      this.hpOutlineRect,
+      this.hpOutlineRoundness,
+      this.hpOutlineSegments,
+      this.hpOutlineLineThick,
+      r.BLACK
     );
   }
 }
