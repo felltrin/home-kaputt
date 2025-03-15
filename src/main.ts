@@ -19,6 +19,7 @@ class Projectile {
   radius: number;
   speed: number;
   pos: r.Vector2;
+  active = true;
 
   constructor(pos: r.Vector2) {
     this.radius = 4;
@@ -28,6 +29,11 @@ class Projectile {
 
   update() {
     this.pos.x -= this.speed;
+    if (this.active) {
+      if (this.pos.x > 1280 || this.pos.x < 0) {
+        this.active = false;
+      }
+    }
   }
 
   draw() {
@@ -41,8 +47,6 @@ class House {
   color: r.Color;
   projectiles: Array<Projectile>;
   ready: boolean = true;
-  projectile_time: number = 0;
-  projectile_cooldown: number = 600;
 
   constructor(newX: number) {
     this.position = { x: newX, y: 550, z: 150 };
@@ -85,6 +89,17 @@ class House {
   }
 }
 
+const removeInactiveProjectiles = (projectiles: Array<Projectile>) => {
+  for (let projectile of projectiles) {
+    if (projectile.active === false) {
+      const index = projectiles.indexOf(projectile);
+      if (index > -1) {
+        projectiles.splice(index, 1);
+      }
+    }
+  }
+};
+
 const houseOne: House = new House(200);
 const houseTwo: House = new House(900);
 const ground: r.Vector3 = { x: 0, y: 700, z: 1300 };
@@ -103,6 +118,7 @@ while (!r.WindowShouldClose()) {
   r.BeginDrawing();
   r.ClearBackground(r.SKYBLUE);
 
+  removeInactiveProjectiles(houseOne.projectiles);
   for (let projectile of houseOne.projectiles) {
     projectile.update();
     projectile.draw();
