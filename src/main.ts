@@ -14,39 +14,75 @@
 
 import r from "raylib";
 
+// scene constants
+class Projectile {
+  radius: number;
+  speed: number;
+  pos: r.Vector2;
+
+  constructor(pos: r.Vector2) {
+    this.radius = 4;
+    this.speed = -8;
+    this.pos = pos;
+  }
+
+  draw() {
+    r.DrawCircle(this.pos.x, this.pos.y, this.radius, r.GREEN);
+  }
+}
+
+class House {
+  position: r.Vector3;
+  hp: number;
+  color: r.Color;
+  projectiles: Array<Projectile>;
+  ready: boolean = true;
+  projectile_time: number = 0;
+  projectile_cooldown: number = 600;
+
+  constructor(newX: number) {
+    this.position = { x: newX, y: 550, z: 150 };
+    this.hp = 100;
+    this.color = { r: 0, g: 0, b: 128, a: 255 };
+    this.projectiles = new Array();
+  }
+
+  fireProjectiles() {
+    const pos: r.Vector2 = { x: this.position.x, y: this.position.y };
+    this.projectiles.push(new Projectile(pos));
+  }
+
+  draw() {
+    r.DrawRectangle(
+      this.position.x,
+      this.position.y,
+      this.position.z,
+      this.position.z,
+      this.color
+    );
+    r.DrawTriangle(
+      { x: this.position.x + 75, y: this.position.y - 125 },
+      { x: this.position.x - 50, y: this.position.y },
+      { x: this.position.x + this.position.z + 50, y: this.position.y },
+      this.color
+    );
+  }
+}
+
+const houseOne: House = new House(200);
+const houseTwo: House = new House(900);
+const ground: r.Vector3 = { x: 0, y: 700, z: 1300 };
+
 const screenWidth = 1280;
 const screenHeight = 720;
-
-// scene constants
-const houseY: number = 550;
-const playerOneHouseSpec: r.Vector3 = { x: 200, y: houseY, z: 150 };
-const playerTwoHouseSpec: r.Vector3 = { x: 900, y: houseY, z: 150 };
-const ground: r.Vector3 = { x: 0, y: 700, z: 1300 };
-const houseColor: r.Color = { r: 0, g: 0, b: 128, a: 255 };
-
-const constructHouse = (playerSpec: r.Vector3, color: r.Color) => {
-  r.DrawRectangle(
-    playerSpec.x,
-    playerSpec.y,
-    playerSpec.z,
-    playerSpec.z,
-    color
-  );
-  r.DrawTriangle(
-    { x: playerSpec.x + 75, y: houseY - 125 },
-    { x: playerSpec.x - 50, y: houseY },
-    { x: playerSpec.x + playerSpec.z + 50, y: houseY },
-    color
-  );
-};
 
 r.InitWindow(screenWidth, screenHeight, "home feud");
 r.SetTargetFPS(60);
 
 while (!r.WindowShouldClose()) {
-  // if (r.IsKeyDown(r.KEY_RIGHT)) {
-  //   boxPosition.x += 10;
-  // }
+  if (r.IsKeyPressed(r.KEY_SPACE)) {
+    houseOne.fireProjectiles();
+  }
   // if (r.IsKeyDown(r.KEY_LEFT)) {
   //   boxPosition.x -= 10;
   // }
@@ -59,9 +95,13 @@ while (!r.WindowShouldClose()) {
   r.BeginDrawing();
   r.ClearBackground(r.SKYBLUE);
 
+  for (let projectile of houseOne.projectiles) {
+    projectile.draw();
+  }
+
   // scene drawing
-  constructHouse(playerOneHouseSpec, houseColor);
-  constructHouse(playerTwoHouseSpec, houseColor);
+  houseOne.draw();
+  houseTwo.draw();
   r.DrawRectangle(ground.x, ground.y, ground.z, ground.z, r.BROWN);
 
   r.EndDrawing();
