@@ -26,6 +26,10 @@ class Projectile {
     this.pos = pos;
   }
 
+  update() {
+    this.pos.x -= this.speed;
+  }
+
   draw() {
     r.DrawCircle(this.pos.x, this.pos.y, this.radius, r.GREEN);
   }
@@ -48,7 +52,19 @@ class House {
   }
 
   fireProjectiles() {
-    const pos: r.Vector2 = { x: this.position.x, y: this.position.y };
+    let pos: r.Vector2;
+    if (this.position.x < 500) {
+      pos = {
+        x: this.position.x + this.position.z / 2,
+        y: this.position.y,
+      };
+    } else {
+      pos = {
+        x: this.position.x - this.position.z / 2,
+        y: this.position.y,
+      };
+    }
+
     this.projectiles.push(new Projectile(pos));
   }
 
@@ -83,19 +99,12 @@ while (!r.WindowShouldClose()) {
   if (r.IsKeyPressed(r.KEY_SPACE)) {
     houseOne.fireProjectiles();
   }
-  // if (r.IsKeyDown(r.KEY_LEFT)) {
-  //   boxPosition.x -= 10;
-  // }
-  // if (r.IsKeyDown(r.KEY_DOWN)) {
-  //   boxPosition.y += 10;
-  // }
-  // if (r.IsKeyDown(r.KEY_UP)) {
-  //   boxPosition.y -= 10;
-  // }
+
   r.BeginDrawing();
   r.ClearBackground(r.SKYBLUE);
 
   for (let projectile of houseOne.projectiles) {
+    projectile.update();
     projectile.draw();
   }
 
