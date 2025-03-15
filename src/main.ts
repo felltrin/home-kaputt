@@ -32,6 +32,7 @@ class Projectile {
     if (this.active) {
       if (this.pos.x > 1280 || this.pos.x < 0) {
         this.active = false;
+        console.log("i like pizza");
       }
     }
   }
