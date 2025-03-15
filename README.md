@@ -7,4 +7,5 @@ A home demolition game where the objective is to destroy the other players house
 - [x] set up main game loop
 - [x] home object
 - [x] projectiles
+- [ ] hp bar
 - [ ] turns
