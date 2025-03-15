@@ -51,7 +51,7 @@ class House {
   hpOutlineRoundness: number;
   hpOutlineSegments: number;
   hpOutlineLineThick: number;
-  // hpOutlineColor: r.Color;
+  hpBarRect: r.Rectangle;
 
   constructor(newX: number) {
     this.position = { x: newX, y: 550, z: 150 };
@@ -67,7 +67,12 @@ class House {
     this.hpOutlineRoundness = 5;
     this.hpOutlineSegments = 10;
     this.hpOutlineLineThick = 4;
-    // this.hpOutlineColor = r.BLACK;
+    this.hpBarRect = {
+      x: this.hpOutlineRect.x,
+      y: this.hpOutlineRect.y,
+      width: 200 * (this.hp / 100),
+      height: 20,
+    };
   }
 
   fireProjectiles() {
@@ -104,6 +109,9 @@ class House {
       { x: this.position.x + this.position.z + 50, y: this.position.y },
       this.color
     );
+
+    // hp bar
+    r.DrawRectangleRec(this.hpBarRect, r.LIME);
 
     // hp bar outline
     r.DrawRectangleRoundedLines(
