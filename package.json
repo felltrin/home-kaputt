@@ -7,7 +7,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && node dist/main.js"
+    "start": "clear && tsc && node dist/main.js"
   },
   "keywords": [],
   "author": "",

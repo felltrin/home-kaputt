@@ -14,7 +14,6 @@
 
 import r from "raylib";
 
-// scene constants
 class Projectile {
   radius: number;
   speed: number;
@@ -47,12 +46,32 @@ class House {
   color: r.Color;
   projectiles: Array<Projectile>;
   ready: boolean = true;
+  hpOutlineRect: r.Rectangle;
+  hpOutlineRoundness: number;
+  hpOutlineSegments: number;
+  hpOutlineLineThick: number;
+  hpBarRect: r.Rectangle;
 
   constructor(newX: number) {
     this.position = { x: newX, y: 550, z: 150 };
     this.hp = 100;
     this.color = { r: 0, g: 0, b: 128, a: 255 };
     this.projectiles = new Array();
+    this.hpOutlineRect = {
+      x: this.position.x - 25,
+      y: this.position.y - 200,
+      width: 200,
+      height: 20,
+    };
+    this.hpOutlineRoundness = 5;
+    this.hpOutlineSegments = 10;
+    this.hpOutlineLineThick = 4;
+    this.hpBarRect = {
+      x: this.hpOutlineRect.x,
+      y: this.hpOutlineRect.y,
+      width: 200,
+      height: 20,
+    };
   }
 
   fireProjectiles() {
@@ -72,7 +91,28 @@ class House {
     this.projectiles.push(new Projectile(pos));
   }
 
+  checkProjectileCollision(projectiles: Array<Projectile>) {
+    const size = this.position.z;
+    const playerRect: r.Rectangle = {
+      x: this.position.x,
+      y: this.position.y,
+      width: size,
+      height: size,
+    };
+    for (let projectile of projectiles) {
+      if (
+        projectile.active &&
+        r.CheckCollisionCircleRec(projectile.pos, projectile.radius, playerRect)
+      ) {
+        projectile.active = false;
+        this.hp -= 5;
+        this.hpBarRect.width = 200 * (this.hp / 100);
+      }
+    }
+  }
+
   draw() {
+    // house body
     r.DrawRectangle(
       this.position.x,
       this.position.y,
@@ -80,15 +120,30 @@ class House {
       this.position.z,
       this.color
     );
+
+    // house roof
     r.DrawTriangle(
       { x: this.position.x + 75, y: this.position.y - 125 },
       { x: this.position.x - 50, y: this.position.y },
       { x: this.position.x + this.position.z + 50, y: this.position.y },
       this.color
     );
+
+    // hp bar
+    r.DrawRectangleRec(this.hpBarRect, r.LIME);
+
+    // hp bar outline
+    r.DrawRectangleRoundedLines(
+      this.hpOutlineRect,
+      this.hpOutlineRoundness,
+      this.hpOutlineSegments,
+      this.hpOutlineLineThick,
+      r.BLACK
+    );
   }
 }
 
+// FIXME: this needs to be put into one of the classes
 const removeInactiveProjectiles = (projectiles: Array<Projectile>) => {
   for (let projectile of projectiles) {
     if (projectile.active === false) {
@@ -100,6 +155,7 @@ const removeInactiveProjectiles = (projectiles: Array<Projectile>) => {
   }
 };
 
+// scene fields
 const houseOne: House = new House(200);
 const houseTwo: House = new House(900);
 const ground: r.Vector3 = { x: 0, y: 700, z: 1300 };
@@ -123,6 +179,8 @@ while (!r.WindowShouldClose()) {
     projectile.update();
     projectile.draw();
   }
+
+  houseTwo.checkProjectileCollision(houseOne.projectiles);
 
   // scene drawing
   houseOne.draw();
