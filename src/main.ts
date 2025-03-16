@@ -14,7 +14,6 @@
 
 import r from "raylib";
 
-// scene constants
 class Projectile {
   radius: number;
   speed: number;
@@ -70,7 +69,7 @@ class House {
     this.hpBarRect = {
       x: this.hpOutlineRect.x,
       y: this.hpOutlineRect.y,
-      width: 200 * (this.hp / 100),
+      width: 200,
       height: 20,
     };
   }
@@ -90,6 +89,26 @@ class House {
     }
 
     this.projectiles.push(new Projectile(pos));
+  }
+
+  checkProjectileCollision(projectiles: Array<Projectile>) {
+    const size = this.position.z;
+    const playerRect: r.Rectangle = {
+      x: this.position.x,
+      y: this.position.y,
+      width: size,
+      height: size,
+    };
+    for (let projectile of projectiles) {
+      if (
+        projectile.active &&
+        r.CheckCollisionCircleRec(projectile.pos, projectile.radius, playerRect)
+      ) {
+        projectile.active = false;
+        this.hp -= 5;
+        this.hpBarRect.width = 200 * (this.hp / 100);
+      }
+    }
   }
 
   draw() {
@@ -124,6 +143,7 @@ class House {
   }
 }
 
+// FIXME: this needs to be put into one of the classes
 const removeInactiveProjectiles = (projectiles: Array<Projectile>) => {
   for (let projectile of projectiles) {
     if (projectile.active === false) {
@@ -135,6 +155,7 @@ const removeInactiveProjectiles = (projectiles: Array<Projectile>) => {
   }
 };
 
+// scene fields
 const houseOne: House = new House(200);
 const houseTwo: House = new House(900);
 const ground: r.Vector3 = { x: 0, y: 700, z: 1300 };
@@ -158,6 +179,8 @@ while (!r.WindowShouldClose()) {
     projectile.update();
     projectile.draw();
   }
+
+  houseTwo.checkProjectileCollision(houseOne.projectiles);
 
   // scene drawing
   houseOne.draw();
